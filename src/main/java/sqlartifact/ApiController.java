@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+@CrossOrigin
 @Controller
 public class ApiController {
 	@RequestMapping("/test")
@@ -167,11 +169,16 @@ public class ApiController {
 	         int result = pstmt.executeUpdate();
 	         System.out.println(result);
 	         if(result>0) {
-	        	
-	        	 return "{status: true, message: success}";
+	        	 con.close();
+	        	 res = Json.createObjectBuilder()
+	        			 .add("status", true)
+	        			 .add("message", "success");
 	         }
 	         else {
-	        	 return "{status: false, message: error}";
+	        	 con.close();
+	        	 res = Json.createObjectBuilder()
+	        			 .add("status", true)
+	        			 .add("message", "success");
  
 	         }
 			}catch(Exception e) {
