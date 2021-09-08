@@ -146,4 +146,43 @@ public class ApiController {
 			return jsonString;
 		
 	}
+	@RequestMapping(value="/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String delete(@PathVariable("id") String id) {
+		// System.out.println(userId);
+		DataSource ds;
+		Connection con;
+		JsonObjectBuilder res = Json.createObjectBuilder();
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.create();
+		try {
+			Context ic = new InitialContext();
+	         ds = (DataSource) ic.lookup("java:comp/env/jdbc/jit");
+	         con = ds.getConnection();
+	         PreparedStatement pstmt = null;
+	         String query = null;
+	         query = "DELETE FROM `user_details` where `id`="+id;
+	         pstmt = con.prepareStatement(query);
+//	         pstmt.setInt(1,Integer.parseInt(id));
+	         int result = pstmt.executeUpdate();
+	         System.out.println(result);
+	         if(result>0) {
+	        	
+	        	 return "{status: true, message: success}";
+	         }
+	         else {
+	        	 return "{status: false, message: error}";
+ 
+	         }
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+		JsonObject jsonObject = res.build();
+		String jsonString;
+			StringWriter writer = new StringWriter();
+			Json.createWriter(writer).write(jsonObject);
+			jsonString = writer.toString();
+			return jsonString;
+		
+	}
 }
