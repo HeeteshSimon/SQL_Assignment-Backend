@@ -115,6 +115,7 @@ public class ApiController {
 	        	 subject3.add(result.getString("subject3"));
 //	        	 return "{status: true, message: success, batchId: "+batchMapped+"}";
 	         }
+	         con.close();
 	         String nameJson = gson.toJson(name);
 	         String idJson = gson.toJson(id);
 	         String subject1Json = gson.toJson(subject1);
@@ -179,6 +180,98 @@ public class ApiController {
 	        	 res = Json.createObjectBuilder()
 	        			 .add("status", true)
 	        			 .add("message", "success");
+ 
+	         }
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+		JsonObject jsonObject = res.build();
+		String jsonString;
+			StringWriter writer = new StringWriter();
+			Json.createWriter(writer).write(jsonObject);
+			jsonString = writer.toString();
+			return jsonString;
+		
+	}
+	@RequestMapping(value="/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String getById(@PathVariable("id") String id) {
+		// System.out.println(userId);
+		DataSource ds;
+		Connection con;
+		JsonObjectBuilder res = Json.createObjectBuilder();
+		try {
+			Context ic = new InitialContext();
+	         ds = (DataSource) ic.lookup("java:comp/env/jdbc/jit");
+	         con = ds.getConnection();
+	         PreparedStatement pstmt = null;
+	         String query = null;
+	         query = "SELECT * FROM `user_details` where `id`=?";
+	         pstmt = con.prepareStatement(query);
+	         pstmt.setInt(1,Integer.parseInt(id));
+	         ResultSet result = pstmt.executeQuery();
+	         System.out.println(result);
+	         if(result.next()) {
+	        	 res = Json.createObjectBuilder()
+	        			 .add("status", true)
+	        			 .add("message", "success")
+	        	 		 .add("name", result.getString("name"))
+	        	 		 .add("subject1", result.getString("subject1"))
+	        	 		 .add("subject2", result.getString("subject2"))
+	        	 		 .add("subject3", result.getString("subject3"));
+	        	 con.close();
+	         }
+	         else {
+	        	 con.close();
+	        	 res = Json.createObjectBuilder()
+	        			 .add("status", true)
+	        			 .add("message", "no data found against corresponding ID");
+ 
+	         }
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+		JsonObject jsonObject = res.build();
+		String jsonString;
+			StringWriter writer = new StringWriter();
+			Json.createWriter(writer).write(jsonObject);
+			jsonString = writer.toString();
+			return jsonString;
+		
+	}
+	@RequestMapping(value="/update/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String update(@PathVariable("id") String id, @RequestParam("name") String name, @RequestParam("subject1") String subject1, @RequestParam("subject2") String subject2, @RequestParam("subject3") String subject3) {
+		// System.out.println(userId);
+		DataSource ds;
+		Connection con;
+		JsonObjectBuilder res = Json.createObjectBuilder();
+		try {
+			Context ic = new InitialContext();
+	         ds = (DataSource) ic.lookup("java:comp/env/jdbc/jit");
+	         con = ds.getConnection();
+	         PreparedStatement pstmt = null;
+	         String query = null;
+	         query = "UPDATE `user_details` SET  `name`=?, `subject1`=?, `subject2`=?, `subject3`=?  where `id`=?";
+	         pstmt = con.prepareStatement(query);
+	         pstmt.setString(1, name);
+	         pstmt.setString(2, subject1);
+	         pstmt.setString(3, subject2);
+	         pstmt.setString(4, subject3);
+	         pstmt.setInt(5,Integer.parseInt(id));
+	         int result = pstmt.executeUpdate();
+	         System.out.println(result);
+	         if(result>0) {
+	        	 res = Json.createObjectBuilder()
+	        			 .add("status", true)
+	        			 .add("message", "success");
+	        	 con.close();
+	         }
+	         else {
+	        	 con.close();
+	        	 res = Json.createObjectBuilder()
+	        			 .add("status", false)
+	        			 .add("message", "erro");
  
 	         }
 			}catch(Exception e) {
