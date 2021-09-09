@@ -94,6 +94,7 @@ public class ApiController {
 		ArrayList<String> subject1 = new ArrayList<String>();
 		ArrayList<String> subject2 = new ArrayList<String>();
 		ArrayList<String> subject3 = new ArrayList<String>();
+		ArrayList<String> average = new ArrayList<String>();
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		Gson gson = gsonBuilder.create();
 		try {
@@ -102,7 +103,7 @@ public class ApiController {
 	         con = ds.getConnection();
 	         PreparedStatement pstmt = null;
 	         String query = null;
-	         query = "SELECT * FROM `user_details`";
+	         query = "SELECT `id`,`name`, `subject1`, `subject2`, `subject3`, (subject1+subject2+subject3)/3 as average FROM `user_details`";
 	         pstmt = con.prepareStatement(query);
 	         ResultSet result = pstmt.executeQuery(query);
 	         System.out.println(result);
@@ -113,6 +114,7 @@ public class ApiController {
 	        	 subject1.add(result.getString("subject1"));
 	        	 subject2.add(result.getString("subject2"));
 	        	 subject3.add(result.getString("subject3"));
+	        	 average.add(result.getString("average"));
 //	        	 return "{status: true, message: success, batchId: "+batchMapped+"}";
 	         }
 	         con.close();
@@ -121,6 +123,7 @@ public class ApiController {
 	         String subject1Json = gson.toJson(subject1);
 	         String subject2Json = gson.toJson(subject2);
 	         String subject3Json = gson.toJson(subject3);
+	         String averageJson = gson.toJson(average);
 	         if(result != null)
 	        	 res = Json.createObjectBuilder()
 	        	 .add("status", true)
@@ -129,7 +132,8 @@ public class ApiController {
 	        	 .add("id", idJson)
 	        	 .add("subject1", subject1Json)
 	        	 .add("subject2", subject2Json)
-	        	 .add("subject3", subject3Json);
+	        	 .add("subject3", subject3Json)
+	        	 .add("average", averageJson);
 //	         else {
 //	        	 con.close();
 //	        	 res = Json.createObjectBuilder()
