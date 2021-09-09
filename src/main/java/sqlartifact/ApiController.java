@@ -34,9 +34,14 @@ public class ApiController {
 		return "success";
 	}
 	
-	@RequestMapping(value="/create", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+	@RequestMapping(value="/create", 
+			produces = MediaType.APPLICATION_JSON_VALUE, 
+			method = RequestMethod.POST)
 	@ResponseBody
-	public String Create(@RequestParam("name") String name, @RequestParam("subject1") String subject1, @RequestParam("subject2") String subject2, @RequestParam("subject3") String subject3 ) {
+	public String Create(@RequestParam("name") String name, 
+			@RequestParam("subject1") String subject1, 
+			@RequestParam("subject2") String subject2, 
+			@RequestParam("subject3") String subject3 ) {
 		// System.out.println(userId);
 		DataSource ds;
 		Connection con;
@@ -47,7 +52,8 @@ public class ApiController {
 	         con = ds.getConnection();
 	         PreparedStatement pstmt = null;
 	         String query = null;
-	         query = "INSERT INTO user_details(`name`, `subject1`, `subject2`, `subject3`) VALUES(?, ?, ?, ?)";
+	         query = "INSERT INTO user_details(`name`, `subject1`, `subject2`,"
+	         		+ " `subject3`) VALUES(?, ?, ?, ?)";
 	         pstmt = con.prepareStatement(query);
 //	         pstmt.setInt(1, Integer.parseInt(userId));
 	         pstmt.setString(1, name);
@@ -103,7 +109,8 @@ public class ApiController {
 	         con = ds.getConnection();
 	         PreparedStatement pstmt = null;
 	         String query = null;
-	         query = "SELECT `id`,`name`, `subject1`, `subject2`, `subject3`, (subject1+subject2+subject3)/3 as average FROM `user_details`";
+	         query = "SELECT `id`,`name`, `subject1`, `subject2`, `subject3`, "
+	         		+ "(subject1+subject2+subject3)/3 as average FROM `user_details`";
 	         pstmt = con.prepareStatement(query);
 	         ResultSet result = pstmt.executeQuery(query);
 	         System.out.println(result);
@@ -243,9 +250,14 @@ public class ApiController {
 			return jsonString;
 		
 	}
-	@RequestMapping(value="/update/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/update/{id}", 
+			produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public String update(@PathVariable("id") String id, @RequestParam("name") String name, @RequestParam("subject1") String subject1, @RequestParam("subject2") String subject2, @RequestParam("subject3") String subject3) {
+	public String update(@PathVariable("id") String id, 
+			@RequestParam("name") String name, 
+			@RequestParam("subject1") String subject1, 
+			@RequestParam("subject2") String subject2, 
+			@RequestParam("subject3") String subject3) {
 		// System.out.println(userId);
 		DataSource ds;
 		Connection con;
@@ -256,7 +268,8 @@ public class ApiController {
 	         con = ds.getConnection();
 	         PreparedStatement pstmt = null;
 	         String query = null;
-	         query = "UPDATE `user_details` SET  `name`=?, `subject1`=?, `subject2`=?, `subject3`=?  where `id`=?";
+	         query = "UPDATE `user_details` SET  `name`=?, "
+	         		+ "`subject1`=?, `subject2`=?, `subject3`=?  where `id`=?";
 	         pstmt = con.prepareStatement(query);
 	         pstmt.setString(1, name);
 	         pstmt.setString(2, subject1);
@@ -270,6 +283,70 @@ public class ApiController {
 	        			 .add("status", true)
 	        			 .add("message", "success");
 	        	 con.close();
+	         }
+	         else {
+	        	 con.close();
+	        	 res = Json.createObjectBuilder()
+	        			 .add("status", false)
+	        			 .add("message", "erro");
+ 
+	         }
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+		JsonObject jsonObject = res.build();
+		String jsonString;
+			StringWriter writer = new StringWriter();
+			Json.createWriter(writer).write(jsonObject);
+			jsonString = writer.toString();
+			return jsonString;
+		
+	}
+	@RequestMapping(value="/operations", 
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String operations( 
+			@RequestParam("function") 	String function, 
+			@RequestParam("subject") String subject) {
+		// System.out.println(userId);
+		DataSource ds;
+		Connection con;
+		JsonObjectBuilder res = Json.createObjectBuilder();
+		try {
+			Context ic = new InitialContext();
+	         ds = (DataSource) ic.lookup("java:comp/env/jdbc/jit");
+	         con = ds.getConnection();
+	         PreparedStatement pstmt = null;
+	         String query = null;
+	         if(function.equals("avg"))
+	         query = "SELECT AVG("+subject+") as average FROM `user_details`;";
+	         else	
+	        	 query = "SELECT "+subject+" as subject FROM `user_details` where "+ subject+"=" + function +"("+subject+")" ;
+	         pstmt = con.prepareStatement(query);
+//	         pstmt.setString(1, name);
+//	         pstmt.setString(2, subject1);
+//	         pstmt.setString(3, subject2);
+//	         pstmt.setString(4, subject3);
+//	         pstmt.setInt(5,Integer.parseInt(id));
+	         ResultSet result = pstmt.executeQuery();
+	         System.out.println(result);
+	         if(result.next()) {
+	        	 if(function.equals("avg")) {
+	        		 res = Json.createObjectBuilder()
+	        				 .add("status", true)
+	        				 .add("message", "success")
+	        		 		 .add("value",result.getString("average"));
+	        		 con.close();
+	        		 
+	        	 }
+	        	 else {
+	        		 res = Json.createObjectBuilder()
+	        				 .add("status", true)
+	        				 .add("message", "success")
+	        				 .add("value", result.getString("subject"));
+	        		 con.close();
+	        		 
+	        	 }
 	         }
 	         else {
 	        	 con.close();
