@@ -321,13 +321,14 @@ public class ApiController {
 	         if(function.equals("avg"))
 	         query = "SELECT AVG("+subject+") as average FROM `user_details`;";
 	         else	
-	        	 query = "SELECT "+subject+" as subject FROM `user_details` where "+ subject+"=" + function +"("+subject+")" ;
+	        	 query = "SELECT "+function+"("+subject+") as subject FROM `user_details`";
 	         pstmt = con.prepareStatement(query);
 //	         pstmt.setString(1, name);
 //	         pstmt.setString(2, subject1);
 //	         pstmt.setString(3, subject2);
 //	         pstmt.setString(4, subject3);
 //	         pstmt.setInt(5,Integer.parseInt(id));
+//	         System.out.println();
 	         ResultSet result = pstmt.executeQuery();
 	         System.out.println(result);
 	         if(result.next()) {
