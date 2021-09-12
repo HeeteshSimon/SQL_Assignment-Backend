@@ -341,6 +341,7 @@ public class ApiController {
 	        		 
 	        	 }
 	        	 else {
+	        		 
 	        		 res = Json.createObjectBuilder()
 	        				 .add("status", true)
 	        				 .add("message", "success")
@@ -367,4 +368,121 @@ public class ApiController {
 			return jsonString;
 		
 	}
+	@RequestMapping(value="/five/{select}", 
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String TopFive(@PathVariable("select") String select) {
+		 System.out.println(select);
+		DataSource ds;
+		Connection con;
+		JsonObjectBuilder res = Json.createObjectBuilder();
+		try {
+			Context ic = new InitialContext();
+	         ds = (DataSource) ic.lookup("java:comp/env/jdbc/jit");
+	         con = ds.getConnection();
+	         PreparedStatement pstmt = null;
+	         String query = null;
+	         query = "SELECT * FROM `user_details` ORDER BY `subject1` "+select+", `subject2` "+select+", `subject3`"+select+" LIMIT 5;";
+	         pstmt = con.prepareStatement(query);
+	         ResultSet result = pstmt.executeQuery();
+	         System.out.println(result);
+	         ArrayList<String> name = new ArrayList<String>();
+	 		ArrayList<String> subject1 = new ArrayList<String>();
+	 		ArrayList<String> subject2 = new ArrayList<String>();
+	 		ArrayList<String> subject3 = new ArrayList<String>();
+	 		GsonBuilder gsonBuilder = new GsonBuilder();
+	 		Gson gson = gsonBuilder.create();
+	         while(result.next()) {
+	        	 name.add(result.getString("name"));
+	        	 subject1.add(result.getString("subject1"));
+	        	 subject2.add(result.getString("subject2"));
+	        	 subject3.add(result.getString("subject3"));
+	         }
+	         con.close();
+	         String nameJson = gson.toJson(name);
+	         String subject1Json = gson.toJson(subject1);
+	         String subject2Json = gson.toJson(subject2);
+	         String subject3Json = gson.toJson(subject3);
+	         if(result != null)
+	        	 res = Json.createObjectBuilder()
+	        	 .add("status", true)
+	        	 .add("message", "success")
+	        	 .add("name", nameJson)
+	        	 .add("subject1", subject1Json)
+	        	 .add("subject2", subject2Json)
+	        	 .add("subject3", subject3Json);
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+		JsonObject jsonObject = res.build();
+		String jsonString;
+			StringWriter writer = new StringWriter();
+			Json.createWriter(writer).write(jsonObject);
+			jsonString = writer.toString();
+			return jsonString;
+		
+	}
+	
+	@RequestMapping(value="/filters", 
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String Filters( 
+			@RequestParam("filter") 	String filter, 
+			@RequestParam("subject") String subject,
+			@RequestParam("marks") String marks) {
+		// System.out.println(userId);
+		DataSource ds;
+		Connection con;
+		JsonObjectBuilder res = Json.createObjectBuilder();
+		try {
+			Context ic = new InitialContext();
+	         ds = (DataSource) ic.lookup("java:comp/env/jdbc/jit");
+	         con = ds.getConnection();
+	         PreparedStatement pstmt = null;
+	         String query = null;
+	         if(filter.equals("greater"))
+	        	 query = "SELECT * FROM `user_details` WHERE "+subject+">"+marks+";";
+	         else if(filter.equals("equals"))
+	        	 query = "SELECT * FROM `user_details` WHERE "+subject+"="+marks+";";
+	         else
+	        	 query = "SELECT * FROM `user_details` WHERE "+subject+"<"+marks+";";
+	        ArrayList<String> name = new ArrayList<String>();
+		 		ArrayList<String> subject1 = new ArrayList<String>();
+		 		ArrayList<String> subject2 = new ArrayList<String>();
+		 		ArrayList<String> subject3 = new ArrayList<String>();
+		 		GsonBuilder gsonBuilder = new GsonBuilder();
+		 		Gson gson = gsonBuilder.create();
+		 		 pstmt = con.prepareStatement(query);
+		         ResultSet result = pstmt.executeQuery();
+		         while(result.next()) {
+		        	 name.add(result.getString("name"));
+		        	 subject1.add(result.getString("subject1"));
+		        	 subject2.add(result.getString("subject2"));
+		        	 subject3.add(result.getString("subject3"));
+		         }
+		         con.close();
+		         String nameJson = gson.toJson(name);
+		         String subject1Json = gson.toJson(subject1);
+		         String subject2Json = gson.toJson(subject2);
+		         String subject3Json = gson.toJson(subject3);
+		         if(result != null)
+		        	 res = Json.createObjectBuilder()
+		        	 .add("status", true)
+		        	 .add("message", "success")
+		        	 .add("name", nameJson)
+		        	 .add("subject1", subject1Json)
+		        	 .add("subject2", subject2Json)
+		        	 .add("subject3", subject3Json);
+				}catch(Exception e) {
+					System.out.println(e.getMessage());
+				}
+			JsonObject jsonObject = res.build();
+			String jsonString;
+				StringWriter writer = new StringWriter();
+				Json.createWriter(writer).write(jsonObject);
+				jsonString = writer.toString();
+				return jsonString;
+		
+	}
+	
 }

@@ -6,7 +6,7 @@
             auth="Container"
             type="javax.sql.DataSource"
             username="root"
-            password="Simon@98564932#"
+            password="Pathshala@1a"
             driverClassName="com.mysql.cj.jdbc.Driver"
             url="jdbc:mysql://localhost:3306/lti_sql"
             maxActive="8" maxIdle="4"/>
